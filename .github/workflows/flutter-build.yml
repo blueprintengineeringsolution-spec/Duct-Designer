@@ -1,0 +1,73 @@
+
+name: Build APK File
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Download the repository code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Install Flutter
+      - name: Setup Flutter
+        uses: flutter-actions/setup-flutter@v3
+        with:
+          version: 3.47.7
+
+      # 3. Display Flutter version
+      - name: Check Flutter version
+        run: flutter --version
+
+      # 4. Verify the Gradle desugaring configuration
+      - name: Verify Android desugaring configuration
+        shell: bash
+        run: |
+          echo "Checking current commit..."
+          git log -1 --oneline
+
+          echo "Checking Gradle configuration..."
+          if [ ! -f android/app/build.gradle.kts ]; then
+            echo "ERROR: android/app/build.gradle.kts was not found."
+            exit 1
+          fi
+
+          grep -n -E \
+            "isCoreLibraryDesugaringEnabled|desugar_jdk_libs" \
+            android/app/build.gradle.kts || true
+
+          if ! grep -q "isCoreLibraryDesugaringEnabled = true" \
+            android/app/build.gradle.kts; then
+            echo "ERROR: Core library desugaring is not enabled."
+            exit 1
+          fi
+
+          if ! grep -q "coreLibraryDesugaring(" \
+            android/app/build.gradle.kts; then
+            echo "ERROR: Desugaring dependency is missing."
+            exit 1
+          fi
+
+          echo "Desugaring configuration found."
+
+      # 5. Install Flutter dependencies
+      - name: Get Flutter dependencies
+        run: flutter pub get
+
+      # 6. Build the release APK
+      - name: Build release APK
+        run: flutter build apk --release
+
+      # 7. Upload the generated APK
+      - name: Upload APK artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+          retention-days: 7
