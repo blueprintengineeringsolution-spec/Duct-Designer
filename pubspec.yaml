@@ -18,7 +18,7 @@ dependencies:
   file_picker: ^8.1.2
   qr_flutter: ^4.1.0
   mobile_scanner: ^6.0.2
-  ar_flutter_plugin: ^0.7.3
+  # ar_flutter_plugin: ^0.7.3
 dev_dependencies:
   flutter_test:
     sdk: flutter
