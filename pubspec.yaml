@@ -1,0 +1,26 @@
+name: ductletor_pro
+description: Offline-first HVAC duct network design and analysis.
+publish_to: none
+version: 0.1.0
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+dependencies:
+  flutter:
+    sdk: flutter
+  hvac_engine:
+    path: packages/hvac_engine
+  path_provider: ^2.1.0
+  shared_preferences: ^2.2.0
+  web: ^1.0.0
+  pdf: ^3.10.4
+  printing: ^5.12.0
+  share_plus: ^10.1.4
+  file_picker: ^8.1.2
+  qr_flutter: ^4.1.0
+  mobile_scanner: ^6.0.2
+  ar_flutter_plugin: ^0.7.3
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+flutter:
+  uses-material-design: true

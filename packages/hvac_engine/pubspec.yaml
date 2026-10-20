@@ -1,0 +1,10 @@
+name: hvac_engine
+description: Pure-Dart HVAC duct sizing, pressure-loss, acoustic and critical-path engine for Ductletor Pro.
+version: 0.1.0
+publish_to: none
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+dependencies:
+  archive: ^3.6.1
+dev_dependencies:
+  test: ^1.24.0
