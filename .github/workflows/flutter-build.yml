@@ -28,7 +28,7 @@ jobs:
       - name: Build release APK
         shell: bash
         run: |
-          flutter build apk --release --stacktrace 2>&1 | tee build.log
+          flutter build apk --release 2>&1 | tee build.log
           exit ${PIPESTATUS[0]}
 
       - name: Upload APK artifact
