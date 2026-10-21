@@ -34,6 +34,14 @@ subprojects {
     }
 }
 
+// OPTIONAL: uncomment ONLY if "Duplicate class android.support..."
+// still appears after setting android.enableJetifier=true
+// subprojects {
+//     configurations.all {
+//         exclude(group = "com.android.support")
+//     }
+// }
+
 subprojects {
     project.evaluationDependsOn(":app")
 }
