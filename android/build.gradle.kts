@@ -1,38 +1,50 @@
-plugins {
-    id("com.android.application")
-    id("kotlin-android")
-    id("dev.flutter.flutter-gradle-plugin")
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
 }
 
-android {
-    namespace = "com.example.duct_designer"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+val newBuildDir: Directory =
+    rootProject.layout.buildDirectory.dir("../../build").get()
+rootProject.layout.buildDirectory.value(newBuildDir)
 
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
+subprojects {
+    val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
+    project.layout.buildDirectory.value(newSubprojectBuildDir)
+}
 
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
-    }
-
-    defaultConfig {
-        applicationId = "com.example.duct_designer"
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
-    }
-
-    buildTypes {
-        release {
-            signingConfig = signingConfigs.getByName("debug")
+// Fix old plugins: set a missing namespace and force Java 17.
+// This block must stay ABOVE evaluationDependsOn.
+subprojects {
+    afterEvaluate {
+        val androidExt = extensions.findByName("android")
+        if (androidExt is com.android.build.gradle.BaseExtension) {
+            if (androidExt.namespace == null) {
+                val manifest = file("src/main/AndroidManifest.xml")
+                val pkg = if (manifest.exists()) {
+                    Regex("package=\"([^\"]+)\"")
+                        .find(manifest.readText())?.groupValues?.get(1)
+                } else null
+                androidExt.namespace = pkg ?: group.toString()
+            }
+            androidExt.compileOptions.sourceCompatibility = JavaVersion.VERSION_17
+            androidExt.compileOptions.targetCompatibility = JavaVersion.VERSION_17
         }
     }
 }
 
-flutter {
-    source = "../.."
+// Remove old support libraries that clash with androidx.
+subprojects {
+    configurations.all {
+        exclude(group = "com.android.support")
+    }
+}
+
+subprojects {
+    project.evaluationDependsOn(":app")
+}
+
+tasks.register<Delete>("clean") {
+    delete(rootProject.layout.buildDirectory)
 }
