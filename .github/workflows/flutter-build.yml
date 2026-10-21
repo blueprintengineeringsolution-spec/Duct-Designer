@@ -1,6 +1,5 @@
 
-
- name: Build APK File
+name: Build APK File
 
 on:
   workflow_dispatch:
