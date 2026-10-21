@@ -1,4 +1,4 @@
-yaml
+
 
 name: Build APK
 
@@ -72,44 +72,6 @@ jobs:
         run: flutter build apk --release
 
       # 8. Upload the generated APK
-      - name: Upload APK artifact
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
-          if-no-files-found: error
-          retention-days: 7
- 
-          fi
-
-          grep -n -E \
-            "isCoreLibraryDesugaringEnabled|desugar_jdk_libs" \
-            android/app/build.gradle.kts || true
-
-          if ! grep -q "isCoreLibraryDesugaringEnabled = true" \
-            android/app/build.gradle.kts; then
-            echo "ERROR: Core library desugaring is not enabled."
-            exit 1
-          fi
-
-          if ! grep -q "coreLibraryDesugaring(" \
-            android/app/build.gradle.kts; then
-            echo "ERROR: Desugaring dependency is missing."
-            exit 1
-          fi
-
-          echo "Desugaring configuration found."
-
-      # 5. Install Flutter dependencies
-      - name: Get Flutter dependencies
-        run: flutter pub get
-
-      # 6. Build the release APK
-      - name: Build release APK
-        run: flutter build apk --release
-
-      # 7. Upload the generated APK
       - name: Upload APK artifact
         if: success()
         uses: actions/upload-artifact@v4
