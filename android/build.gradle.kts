@@ -34,13 +34,13 @@ subprojects {
     }
 }
 
-// OPTIONAL: uncomment ONLY if "Duplicate class android.support..."
-// still appears after setting android.enableJetifier=true
-// subprojects {
-//     configurations.all {
-//         exclude(group = "com.android.support")
-//     }
-// }
+// Remove old support libraries that clash with androidx.
+// Works together with android.enableJetifier=true.
+subprojects {
+    configurations.all {
+        exclude(group = "com.android.support")
+    }
+}
 
 subprojects {
     project.evaluationDependsOn(":app")
