@@ -28,8 +28,19 @@ jobs:
       - name: Build release APK
         shell: bash
         run: |
+          set +e
           flutter build apk --release --no-shrink 2>&1 | tee build.log
-          exit ${PIPESTATUS[0]}
+          code=${PIPESTATUS[0]}
+          if [ $code -ne 0 ]; then
+            echo "########## DIAGNOSIS ##########"
+            echo "--- files in android/app ---"
+            ls android/app
+            echo "--- where the Flutter plugin is applied ---"
+            grep -rn "flutter-gradle-plugin\|flutter-plugin-loader\|generateLockfiles" android --include=*.kts --include=*.gradle
+            echo "--- real error ---"
+            grep -n -B 8 -A 6 "What went wrong" build.log | head -40
+          fi
+          exit $code
 
       - name: Upload APK artifact
         if: success()
@@ -39,10 +50,3 @@ jobs:
           path: build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
           retention-days: 7
-
-      - name: Show real error (last step)
-        if: failure()
-        shell: bash
-        run: |
-          echo "########## WHERE / WHAT ##########"
-          grep -n -B 8 -A 6 "What went wrong" build.log | head -60
