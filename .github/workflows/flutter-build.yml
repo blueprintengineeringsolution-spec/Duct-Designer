@@ -1,4 +1,3 @@
-
 name: Build APK File
 
 on:
@@ -9,52 +8,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Download the repository code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Install Flutter
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
       - name: Setup Flutter
         uses: flutter-actions/setup-flutter@v3
         with:
-          version: 3.47.7
+          channel: stable
 
-      # 3. Display Flutter version
       - name: Check Flutter version
         run: flutter --version
 
-      # 4. Verify Android structure
-      - name: Verify Android project structure
-        shell: bash
-        run: |
-          if [ ! -f android/app/build.gradle.kts ]; then
-            echo "ERROR: android/app/build.gradle.kts was not found."
-            exit 1
-          fi
-          if [ ! -f android/gradle.properties ]; then
-            echo "Creating android/gradle.properties..."
-            touch android/gradle.properties
-          fi
-
-      # 5. Install Flutter dependencies first
       - name: Get Flutter dependencies
         run: flutter pub get
 
-      # 6. Inject AGP 9 compatibility flags *after* pub get (so they aren't overwritten)
-      - name: Inject AGP 9 opt-out flags into gradle.properties
-        shell: bash
-        run: |
-          echo "" >> android/gradle.properties
-          echo "android.newDsl=false" >> android/gradle.properties
-          echo "android.builtInKotlin=false" >> android/gradle.properties
-          echo "--- Updated gradle.properties contents ---"
-          cat android/gradle.properties
-
-      # 7. Build the release APK
       - name: Build release APK
         run: flutter build apk --release
 
-      # 8. Upload the generated APK
       - name: Upload APK artifact
         if: success()
         uses: actions/upload-artifact@v4
