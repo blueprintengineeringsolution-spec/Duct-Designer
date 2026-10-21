@@ -28,7 +28,7 @@ jobs:
       - name: Build release APK
         shell: bash
         run: |
-          flutter build apk --release 2>&1 | tee build.log
+          flutter build apk --release --no-shrink 2>&1 | tee build.log
           exit ${PIPESTATUS[0]}
 
       - name: Upload APK artifact
@@ -44,9 +44,5 @@ jobs:
         if: failure()
         shell: bash
         run: |
-          echo "########## REAL ERROR ##########"
-          grep -n -A 20 "What went wrong" build.log | head -60
-          echo "########## CAUSED BY ##########"
-          grep -n "Caused by" build.log | head -10
-          echo "########## android.* settings ##########"
-          cat android/gradle.properties
+          echo "########## WHERE / WHAT ##########"
+          grep -n -B 8 -A 6 "What went wrong" build.log | head -60
