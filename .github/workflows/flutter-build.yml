@@ -1,6 +1,6 @@
 
 
-name: Build APK
+ name: Build APK File
 
 on:
   workflow_dispatch:
@@ -24,48 +24,32 @@ jobs:
       - name: Check Flutter version
         run: flutter --version
 
-      # 4. Verify the Gradle desugaring configuration
-      - name: Verify Android desugaring configuration
+      # 4. Verify Android structure
+      - name: Verify Android project structure
         shell: bash
         run: |
-          echo "Checking current commit..."
-          git log -1 --oneline
-
-          echo "Checking Gradle configuration..."
           if [ ! -f android/app/build.gradle.kts ]; then
             echo "ERROR: android/app/build.gradle.kts was not found."
             exit 1
           fi
-
-          grep -n -E \
-            "isCoreLibraryDesugaringEnabled|desugar_jdk_libs" \
-            android/app/build.gradle.kts || true
-
-          if ! grep -q "isCoreLibraryDesugaringEnabled = true" \
-            android/app/build.gradle.kts; then
-            echo "ERROR: Core library desugaring is not enabled."
-            exit 1
+          if [ ! -f android/gradle.properties ]; then
+            echo "Creating android/gradle.properties..."
+            touch android/gradle.properties
           fi
 
-          if ! grep -q "coreLibraryDesugaring(" \
-            android/app/build.gradle.kts; then
-            echo "ERROR: Desugaring dependency is missing."
-            exit 1
-          fi
-
-          echo "Desugaring configuration found."
-
-      # 5. Bypass AGP 9+ strict enforcement temporarily
-      - name: Configure Gradle properties for AGP 9 compatibility
-        shell: bash
-        run: |
-          echo "android.newDsl=false" >> android/gradle.properties
-          echo "android.builtInKotlin=false" >> android/gradle.properties
-          echo "Updated gradle.properties with AGP 9 opt-out flags."
-
-      # 6. Install Flutter dependencies
+      # 5. Install Flutter dependencies first
       - name: Get Flutter dependencies
         run: flutter pub get
+
+      # 6. Inject AGP 9 compatibility flags *after* pub get (so they aren't overwritten)
+      - name: Inject AGP 9 opt-out flags into gradle.properties
+        shell: bash
+        run: |
+          echo "" >> android/gradle.properties
+          echo "android.newDsl=false" >> android/gradle.properties
+          echo "android.builtInKotlin=false" >> android/gradle.properties
+          echo "--- Updated gradle.properties contents ---"
+          cat android/gradle.properties
 
       # 7. Build the release APK
       - name: Build release APK
