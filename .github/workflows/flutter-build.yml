@@ -1,5 +1,5 @@
 
-name: Build APK File
+name: Build APK
 
 on:
   workflow_dispatch:
@@ -34,6 +34,52 @@ jobs:
           if [ ! -f android/app/build.gradle.kts ]; then
             echo "ERROR: android/app/build.gradle.kts was not found."
             exit 1
+          fi
+
+          grep -n -E \
+            "isCoreLibraryDesugaringEnabled|desugar_jdk_libs" \
+            android/app/build.gradle.kts || true
+
+          if ! grep -q "isCoreLibraryDesugaringEnabled = true" \
+            android/app/build.gradle.kts; then
+            echo "ERROR: Core library desugaring is not enabled."
+            exit 1
+          fi
+
+          if ! grep -q "coreLibraryDesugaring(" \
+            android/app/build.gradle.kts; then
+            echo "ERROR: Desugaring dependency is missing."
+            exit 1
+          fi
+
+          echo "Desugaring configuration found."
+
+      # 5. Bypass AGP 9+ strict enforcement temporarily
+      - name: Configure Gradle properties for AGP 9 compatibility
+        shell: bash
+        run: |
+          echo "android.newDsl=false" >> android/gradle.properties
+          echo "android.builtInKotlin=false" >> android/gradle.properties
+          echo "Updated gradle.properties with AGP 9 opt-out flags."
+
+      # 6. Install Flutter dependencies
+      - name: Get Flutter dependencies
+        run: flutter pub get
+
+      # 7. Build the release APK
+      - name: Build release APK
+        run: flutter build apk --release
+
+      # 8. Upload the generated APK
+      - name: Upload APK artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+          retention-days: 7
+ 
           fi
 
           grep -n -E \
