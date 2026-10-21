@@ -1,12 +1,13 @@
 import 'dart:async';
-import 'package:ar_flutter_plugin/ar_flutter_plugin.dart';
-import 'package:ar_flutter_plugin/datatypes/config_planedetection.dart';
-import 'package:ar_flutter_plugin/managers/ar_anchor_manager.dart';
-import 'package:ar_flutter_plugin/managers/ar_location_manager.dart';
-import 'package:ar_flutter_plugin/managers/ar_object_manager.dart';
-import 'package:ar_flutter_plugin/managers/ar_session_manager.dart';
-import 'package:ar_flutter_plugin/models/ar_hittest_result.dart';
-import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform, TargetPlatform;
+import 'package:ar_flutter_plugin_updated/ar_flutter_plugin.dart';
+import 'package:ar_flutter_plugin_updated/datatypes/config_planedetection.dart';
+import 'package:ar_flutter_plugin_updated/managers/ar_anchor_manager.dart';
+import 'package:ar_flutter_plugin_updated/managers/ar_location_manager.dart';
+import 'package:ar_flutter_plugin_updated/managers/ar_object_manager.dart';
+import 'package:ar_flutter_plugin_updated/managers/ar_session_manager.dart';
+import 'package:ar_flutter_plugin_updated/models/ar_hittest_result.dart';
+import 'package:flutter/foundation.dart'
+    show kIsWeb, defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:hvac_engine/hvac_engine.dart';
 
@@ -16,7 +17,8 @@ import 'package:hvac_engine/hvac_engine.dart';
 class ArMeasureView extends StatefulWidget {
   final void Function(Point3) onPoint;
   final void Function(String) onUnavailable;
-  const ArMeasureView({super.key, required this.onPoint, required this.onUnavailable});
+  const ArMeasureView(
+      {super.key, required this.onPoint, required this.onUnavailable});
 
   @override
   State<ArMeasureView> createState() => _ArMeasureViewState();
@@ -26,25 +28,32 @@ class _ArMeasureViewState extends State<ArMeasureView> {
   ARSessionManager? _session;
   Timer? _watchdog;
   final bool _supported = !kIsWeb &&
-      (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS);
+      (defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS);
 
   @override
   void initState() {
     super.initState();
     if (!_supported) {
-      WidgetsBinding.instance.addPostFrameCallback(
-          (_) => widget.onUnavailable('AR measuring needs a phone or tablet with AR support.'));
+      WidgetsBinding.instance.addPostFrameCallback((_) => widget.onUnavailable(
+          'AR measuring needs a phone or tablet with AR support.'));
     } else {
       _watchdog = Timer(const Duration(seconds: 8), () {
-        widget.onUnavailable('AR did not start on this device. Use typed readings instead.');
+        widget.onUnavailable(
+            'AR did not start on this device. Use typed readings instead.');
       });
     }
   }
 
-  void _created(ARSessionManager session, ARObjectManager objects, ARAnchorManager anchors, ARLocationManager location) {
+  void _created(ARSessionManager session, ARObjectManager objects,
+      ARAnchorManager anchors, ARLocationManager location) {
     _watchdog?.cancel();
     _session = session;
-    session.onInitialize(showFeaturePoints: true, showPlanes: true, showWorldOrigin: false, handleTaps: true);
+    session.onInitialize(
+        showFeaturePoints: true,
+        showPlanes: true,
+        showWorldOrigin: false,
+        handleTaps: true);
     objects.onInitialize();
     session.onPlaneOrPointTap = (List<ARHitTestResult> hits) {
       if (hits.isEmpty) return;
@@ -62,7 +71,8 @@ class _ArMeasureViewState extends State<ArMeasureView> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_supported) return const Center(child: Text('AR is not available here.'));
+    if (!_supported)
+      return const Center(child: Text('AR is not available here.'));
     return ClipRRect(
       borderRadius: BorderRadius.circular(12),
       child: ARView(
