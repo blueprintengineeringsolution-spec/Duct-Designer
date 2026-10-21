@@ -22,15 +22,17 @@ jobs:
         with:
           channel: stable
 
-      - name: Force AGP 8 and Gradle 8
-        shell: bash
-        run: |
-          sed -i -E 's/(id\("com\.android\.application"\) version )"[0-9.]+"/\1"8.11.1"/' android/settings.gradle.kts
-          sed -i -E 's#gradle-[0-9.]+-(all|bin)\.zip#gradle-8.14-all.zip#' android/gradle/wrapper/gradle-wrapper.properties
-          sed -i '/android.newDsl/d;/android.builtInKotlin/d' android/gradle.properties
-
       - name: Get Flutter dependencies
         run: flutter pub get
+
+      - name: Ensure opt-out flags
+        shell: bash
+        run: |
+          sed -i '/android.newDsl/d;/android.builtInKotlin/d' android/gradle.properties
+          echo "" >> android/gradle.properties
+          echo "android.newDsl=false" >> android/gradle.properties
+          echo "android.builtInKotlin=false" >> android/gradle.properties
+          cat android/gradle.properties
 
       - name: Build release APK
         run: flutter build apk --release
@@ -43,14 +45,3 @@ jobs:
           path: build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
           retention-days: 7
-
-      - name: Show versions (always runs, last step)
-        if: always()
-        shell: bash
-        run: |
-          echo "##### AGP lines #####"
-          grep -rn "com.android" android/*.kts || true
-          echo "##### Gradle wrapper #####"
-          grep distributionUrl android/gradle/wrapper/gradle-wrapper.properties
-          echo "##### gradle.properties #####"
-          cat android/gradle.properties
