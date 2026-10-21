@@ -14,7 +14,7 @@ subprojects {
     project.layout.buildDirectory.value(newSubprojectBuildDir)
 }
 
-// Auto-set a namespace for old plugins that don't declare one.
+// Fix old plugins: set a missing namespace and force Java 17.
 // This block must stay ABOVE evaluationDependsOn.
 subprojects {
     afterEvaluate {
@@ -28,6 +28,8 @@ subprojects {
                 } else null
                 androidExt.namespace = pkg ?: group.toString()
             }
+            androidExt.compileOptions.sourceCompatibility = JavaVersion.VERSION_17
+            androidExt.compileOptions.targetCompatibility = JavaVersion.VERSION_17
         }
     }
 }
