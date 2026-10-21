@@ -25,6 +25,15 @@ jobs:
       - name: Check Flutter version
         run: flutter --version
 
+      - name: Show Android config
+        run: |
+          echo "=== settings.gradle.kts ==="
+          cat android/settings.gradle.kts
+          echo "=== gradle-wrapper.properties ==="
+          cat android/gradle/wrapper/gradle-wrapper.properties
+          echo "=== gradle.properties ==="
+          cat android/gradle.properties
+
       - name: Get Flutter dependencies
         run: flutter pub get
 
