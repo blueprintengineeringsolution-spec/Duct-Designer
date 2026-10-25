@@ -112,7 +112,7 @@ Future<void> importFromFile(BuildContext context, WidgetRef ref) async {
     final f = await gateway.pickFile();
     if (f == null) return;
     if (f.size > maxSharedBytes)
-      return _problem(context, 'That file is too large to be a project.');
+      return await _problem(context, 'That file is too large to be a project.');
     final text = utf8.decode(await f.readBytes());
     if (!context.mounted) return;
     await importText(context, ref, text);
@@ -187,7 +187,7 @@ Future<void> importLibraryFromFile(BuildContext context, WidgetRef ref) async {
     final f = await gateway.pickFile();
     if (f == null) return;
     if (f.size > maxSharedBytes)
-      return _problem(
+      return await _problem(
           context, 'That file is too large to be a fitting library.');
     final text = utf8.decode(await f.readBytes());
     if (!context.mounted) return;

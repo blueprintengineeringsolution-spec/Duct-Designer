@@ -1,5 +1,4 @@
 import 'package:ductletor_pro/features/projects/domain/sample_projects.dart';
-import 'package:ductletor_pro/features/projects/data/memory_project_data_source.dart';
 import 'support/test_project.dart';
 import 'package:ductletor_pro/features/project_editor/domain/tree_ops.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -27,7 +26,8 @@ void main() {
     expect(lib.projects.length, 2);
     expect(lib.active!.id, isNot(src.id));
     expect(lib.active!.name, endsWith('(imported)'));
-    expect(lib.active!.result.requiredFanPa, closeTo(src.result.requiredFanPa, 1e-9));
+    expect(lib.active!.result.requiredFanPa,
+        closeTo(src.result.requiredFanPa, 1e-9));
     await lib.flush();
   });
 
@@ -35,8 +35,12 @@ void main() {
     final lib = TestLibrary(debounce: const Duration(milliseconds: 10));
     await lib.init();
     final doc = ProjectDoc(
-      id: 'x', name: 'Plant (imported)', imperial: false, settings: const EngineSettings(),
-      root: blankProject(), updatedAt: DateTime.utc(2026, 10, 14),
+      id: 'x',
+      name: 'Plant (imported)',
+      imperial: false,
+      settings: const EngineSettings(),
+      root: blankProject(),
+      updatedAt: DateTime.utc(2026, 10, 14),
     );
     await lib.importShared(doc);
     expect(lib.active!.name, 'Plant (imported)');

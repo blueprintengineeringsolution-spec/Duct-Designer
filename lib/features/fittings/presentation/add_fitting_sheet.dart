@@ -280,7 +280,7 @@ class _AddFittingSheetState extends ConsumerState<AddFittingSheet> {
           _sourceFields(),
           const SizedBox(height: 8),
           DropdownButtonFormField<TableInput>(
-            value: tableInput,
+            initialValue: tableInput,
             decoration: const InputDecoration(labelText: 'Table input'),
             onChanged: (v) => setState(() => tableInput = v ?? tableInput),
             items: const [

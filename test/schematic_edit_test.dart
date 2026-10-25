@@ -5,7 +5,6 @@ import 'package:ductletor_pro/features/schematic/presentation/schematic_painter.
 import 'support/test_project.dart';
 import 'package:ductletor_pro/features/project_editor/domain/tree_ops.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hvac_engine/hvac_engine.dart';
 
@@ -16,13 +15,15 @@ Future<TestProject> openNetwork(WidgetTester t, {DuctNode? root}) async {
   return c;
 }
 
-Finder get _canvas => find.byWidgetPredicate((w) => w is CustomPaint && w.painter is SchematicPainter);
+Finder get _canvas => find.byWidgetPredicate(
+    (w) => w is CustomPaint && w.painter is SchematicPainter);
 
 /// Where a point of the diagram ends up on screen (after fit-to-screen scaling).
-Offset onScreen(WidgetTester t, Offset scenePoint) => t.renderObject<RenderBox>(_canvas).localToGlobal(scenePoint);
+Offset onScreen(WidgetTester t, Offset scenePoint) =>
+    t.renderObject<RenderBox>(_canvas).localToGlobal(scenePoint);
 
-Offset nodeCentre(WidgetTester t, TestProject c, String id) =>
-    onScreen(t, layoutNetwork(c.root, collapsed: c.collapsed).byId(id)!.rect.center);
+Offset nodeCentre(WidgetTester t, TestProject c, String id) => onScreen(
+    t, layoutNetwork(c.root, collapsed: c.collapsed).byId(id)!.rect.center);
 
 int count(TestProject c) => allNodes(c.root).length;
 
@@ -34,7 +35,8 @@ Future<void> tapScreen(WidgetTester t, Offset p) async {
   await t.pumpAndSettle();
 }
 
-Finder nameField(String text) => find.byWidgetPredicate((w) => w is TextField && w.controller?.text == text);
+Finder nameField(String text) =>
+    find.byWidgetPredicate((w) => w is TextField && w.controller?.text == text);
 
 /// Two quick taps on the same spot.
 Future<void> doubleTapScreen(WidgetTester t, Offset p) async {
@@ -45,12 +47,18 @@ Future<void> doubleTapScreen(WidgetTester t, Offset p) async {
 }
 
 /// Double-tap a section to edit it.
-Future<void> openInspector(WidgetTester t, TestProject c, String id) => doubleTapScreen(t, nodeCentre(t, c, id));
+Future<void> openInspector(WidgetTester t, TestProject c, String id) =>
+    doubleTapScreen(t, nodeCentre(t, c, id));
 
-Future<void> scrollInspectorTo(WidgetTester t, Finder f) => t.scrollUntilVisible(
+Future<void> scrollInspectorTo(WidgetTester t, Finder f) =>
+    t.scrollUntilVisible(
       f,
       300,
-      scrollable: find.descendant(of: find.byType(DraggableScrollableSheet), matching: find.byType(Scrollable)).first,
+      scrollable: find
+          .descendant(
+              of: find.byType(DraggableScrollableSheet),
+              matching: find.byType(Scrollable))
+          .first,
     );
 
 void main() {
@@ -62,7 +70,8 @@ void main() {
   });
 
   group('select with a tap, edit with a double-tap', () {
-    testWidgets('a single tap only selects: the editor stays closed', (t) async {
+    testWidgets('a single tap only selects: the editor stays closed',
+        (t) async {
       final c = await openNetwork(t);
       await tapScreen(t, nodeCentre(t, c, 't1'));
       expect(c.selectedId, 't1');
@@ -70,7 +79,9 @@ void main() {
       expect(find.text('Edit section'), findsOneWidget);
     });
 
-    testWidgets('the Edit section button opens the editor for the selected section', (t) async {
+    testWidgets(
+        'the Edit section button opens the editor for the selected section',
+        (t) async {
       final c = await openNetwork(t);
       c.select('t2');
       await t.pumpAndSettle();
@@ -84,7 +95,8 @@ void main() {
       expect(find.text('Edit section'), findsNothing);
     });
 
-    testWidgets('double-tapping empty space does not open an editor', (t) async {
+    testWidgets('double-tapping empty space does not open an editor',
+        (t) async {
       final c = await openNetwork(t);
       c.select('t1');
       await t.pumpAndSettle();
@@ -112,7 +124,8 @@ void main() {
       expect(c.canUndo, isTrue);
     });
 
-    testWidgets('an empty name is ignored and the old one comes back', (t) async {
+    testWidgets('an empty name is ignored and the old one comes back',
+        (t) async {
       final c = await openNetwork(t);
       await openInspector(t, c, 't1');
       await t.enterText(nameField('Diffuser 1'), '   ');
@@ -122,7 +135,9 @@ void main() {
       expect(nameField('Diffuser 1'), findsOneWidget);
     });
 
-    testWidgets('a typed name is kept when the sheet is closed without pressing done', (t) async {
+    testWidgets(
+        'a typed name is kept when the sheet is closed without pressing done',
+        (t) async {
       final c = await openNetwork(t);
       await openInspector(t, c, 't2');
       await t.enterText(nameField('Diffuser 2'), 'Office 2');
@@ -141,7 +156,8 @@ void main() {
       expect(c.root.name, 'Main supply');
     });
 
-    testWidgets('Add child closes the editor, adds a section and selects it', (t) async {
+    testWidgets('Add child closes the editor, adds a section and selects it',
+        (t) async {
       final c = await openNetwork(t);
       final before = count(c);
       await openInspector(t, c, 't1');
@@ -162,7 +178,8 @@ void main() {
       expect(count(c), before + 1);
     });
 
-    testWidgets('Delete removes the section and can be undone from the message', (t) async {
+    testWidgets('Delete removes the section and can be undone from the message',
+        (t) async {
       final c = await openNetwork(t);
       await openInspector(t, c, 't2');
       await t.tap(find.text('Delete'));
@@ -196,15 +213,18 @@ void main() {
   });
 
   group('on the diagram', () {
-    testWidgets('the + handle beside the selected section adds a child', (t) async {
+    testWidgets('the + handle beside the selected section adds a child',
+        (t) async {
       final c = await openNetwork(t);
       c.select('t3');
       await t.pumpAndSettle();
       final before = count(c);
       final layout = layoutNetwork(c.root);
-      await tapScreen(t, onScreen(t, layout.plusRect(layout.byId('t3')!).center));
+      await tapScreen(
+          t, onScreen(t, layout.plusRect(layout.byId('t3')!).center));
       expect(count(c), before + 1);
-      expect(find.text('Round'), findsNothing); // no editor opened by the handle
+      expect(
+          find.text('Round'), findsNothing); // no editor opened by the handle
     });
 
     testWidgets('tapping empty space clears the selection', (t) async {
@@ -222,7 +242,8 @@ void main() {
       expect(c.collapsed, contains('a'));
     });
 
-    testWidgets('the Add Node button adds under the selected section', (t) async {
+    testWidgets('the Add Node button adds under the selected section',
+        (t) async {
       final c = await openNetwork(t);
       c.select('t1');
       await t.pumpAndSettle();
@@ -242,7 +263,8 @@ void main() {
       expect(c.root.id, c.units.last.id);
     });
 
-    testWidgets('tapping a unit chip switches the diagram to that unit', (t) async {
+    testWidgets('tapping a unit chip switches the diagram to that unit',
+        (t) async {
       final c = await openNetwork(t);
       final first = c.units.first.id;
       c.addUnit();
@@ -279,7 +301,8 @@ void main() {
   });
 
   group('tee at a split', () {
-    testWidgets('the editor of a split section shows the automatic tee choice', (t) async {
+    testWidgets('the editor of a split section shows the automatic tee choice',
+        (t) async {
       t.view.physicalSize = const Size(800, 1800);
       t.view.devicePixelRatio = 1;
       addTearDown(t.view.reset);
@@ -295,15 +318,25 @@ void main() {
       expect(find.text('Automatic (none)'), findsOneWidget);
     });
 
-    test('a second child makes the loss appear without anyone adding a tee', () {
+    test('a second child makes the loss appear without anyone adding a tee',
+        () {
       final c = TestProject(root: blankProject(), name: 'P');
       c.addChild('trunk');
-      expect(c.nodeResult(c.root.children.single.children.single.id)!.fittingBreakdown, isEmpty);
+      expect(
+          c
+              .nodeResult(c.root.children.single.children.single.id)!
+              .fittingBreakdown,
+          isEmpty);
       c.addChild('trunk');
       final kids = c.root.children.single.children;
       expect(kids.length, 2);
       for (final k in kids) {
-        expect(c.nodeResult(k.id)!.fittingBreakdown.any((f) => f.label.contains('tee')), isTrue);
+        expect(
+            c
+                .nodeResult(k.id)!
+                .fittingBreakdown
+                .any((f) => f.label.contains('tee')),
+            isTrue);
       }
     });
   });

@@ -1,5 +1,4 @@
 import 'package:ductletor_pro/features/schematic/presentation/schematic_layout.dart';
-import 'package:flutter/painting.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hvac_engine/hvac_engine.dart';
 
@@ -17,7 +16,8 @@ void main() {
     expect(l.nodes.length, 5);
     for (final n in l.nodes) {
       final pid = n.parentId;
-      if (pid != null) expect(n.rect.left, greaterThan(l.byId(pid)!.rect.right));
+      if (pid != null)
+        expect(n.rect.left, greaterThan(l.byId(pid)!.rect.right));
     }
     final leaves = l.nodes.where((n) => n.node.children.isEmpty).toList();
     for (var i = 0; i < leaves.length; i++) {
@@ -29,7 +29,8 @@ void main() {
 
   test('parent is vertically centred on its children', () {
     final l = layoutNetwork(_root);
-    final mid = (l.byId('a1')!.rect.center.dy + l.byId('a2')!.rect.center.dy) / 2;
+    final mid =
+        (l.byId('a1')!.rect.center.dy + l.byId('a2')!.rect.center.dy) / 2;
     expect(l.byId('a')!.rect.center.dy, closeTo(mid, 1e-9));
   });
 
@@ -46,14 +47,16 @@ void main() {
     expect(l.hitTest(const Offset(-50, -50)), isNull);
   });
 
-  test('the plus handle sits just right of its node, clear of the tee marker', () {
+  test('the plus handle sits just right of its node, clear of the tee marker',
+      () {
     final l = layoutNetwork(_root);
     final a = l.byId('a')!;
     final plus = l.plusRect(a);
     expect(plus.center.dx, greaterThan(a.rect.right));
     expect(plus.contains(a.rect.center), isFalse);
     final gapMid = a.rect.right + const LayoutConfig().colGap / 2;
-    expect((plus.center.dx - gapMid).abs(), greaterThan(8)); // the tee dot is drawn at the gap middle
+    expect((plus.center.dx - gapMid).abs(),
+        greaterThan(8)); // the tee dot is drawn at the gap middle
     expect(l.hitTest(plus.center), isNull);
   });
 }

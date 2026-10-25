@@ -12,14 +12,18 @@ class DuctletorApp extends ConsumerWidget {
     final startup = ref.watch(appStartupProvider);
     return MaterialApp(
       title: 'Ductletor Pro',
+      debugShowCheckedModeBanner: false,
       theme: buildAppTheme(Brightness.light),
       darkTheme: buildAppTheme(Brightness.dark),
       themeMode: ThemeMode.dark,
       home: startup.when(
-        loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+        loading: () =>
+            const Scaffold(body: Center(child: CircularProgressIndicator())),
         error: (e, _) => Scaffold(
           body: Center(
-            child: Padding(padding: const EdgeInsets.all(24), child: Text('Could not open local storage: $e')),
+            child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Text('Could not open local storage: $e')),
           ),
         ),
         data: (_) => const AppShell(),

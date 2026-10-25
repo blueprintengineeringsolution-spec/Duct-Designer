@@ -1,4 +1,3 @@
-import 'dart:ui' show FontFeature;
 import 'package:flutter/material.dart';
 
 class StepperRow extends StatelessWidget {
@@ -26,7 +25,10 @@ class StepperRow extends StatelessWidget {
         SizedBox(
           width: 96,
           child: Center(
-            child: Text(value, style: const TextStyle(fontWeight: FontWeight.w600, fontFeatures: [FontFeature.tabularFigures()])),
+            child: Text(value,
+                style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontFeatures: [FontFeature.tabularFigures()])),
           ),
         ),
         IconButton.filledTonal(

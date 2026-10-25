@@ -19,7 +19,8 @@ class ProjectSettingsPage extends ConsumerWidget {
 
     const descriptions = {
       SizingMethod.equalFriction: 'Same Pa/m on every section',
-      SizingMethod.staticRegain: 'Velocity falls along the run, pressure regained',
+      SizingMethod.staticRegain:
+          'Velocity falls along the run, pressure regained',
       SizingMethod.velocityReduction: 'Stepped velocity by tree depth',
       SizingMethod.constantVelocity: 'One velocity for the whole system',
     };
@@ -44,15 +45,23 @@ class ProjectSettingsPage extends ConsumerWidget {
             StepperRow(
               label: 'Pressure drop',
               value: fmt.friction(s.frictionPaPerM),
-              onMinus: () => set(s.copyWith(frictionPaPerM: (s.frictionPaPerM - fmt.frictionStep).clamp(0.05, 5.0))),
-              onPlus: () => set(s.copyWith(frictionPaPerM: (s.frictionPaPerM + fmt.frictionStep).clamp(0.05, 5.0))),
+              onMinus: () => set(s.copyWith(
+                  frictionPaPerM:
+                      (s.frictionPaPerM - fmt.frictionStep).clamp(0.05, 5.0))),
+              onPlus: () => set(s.copyWith(
+                  frictionPaPerM:
+                      (s.frictionPaPerM + fmt.frictionStep).clamp(0.05, 5.0))),
             ),
           if (s.method == SizingMethod.constantVelocity)
             StepperRow(
               label: 'Velocity',
               value: fmt.velocity(s.constantVelocity),
-              onMinus: () => set(s.copyWith(constantVelocity: (s.constantVelocity - fmt.velocityStep).clamp(1.0, 20.0))),
-              onPlus: () => set(s.copyWith(constantVelocity: (s.constantVelocity + fmt.velocityStep).clamp(1.0, 20.0))),
+              onMinus: () => set(s.copyWith(
+                  constantVelocity: (s.constantVelocity - fmt.velocityStep)
+                      .clamp(1.0, 20.0))),
+              onPlus: () => set(s.copyWith(
+                  constantVelocity: (s.constantVelocity + fmt.velocityStep)
+                      .clamp(1.0, 20.0))),
             ),
           const Divider(height: 28),
           Text('Duct shape', style: t.titleSmall),
@@ -60,7 +69,8 @@ class ProjectSettingsPage extends ConsumerWidget {
           SegmentedButton<DuctShape>(
             segments: const [
               ButtonSegment(value: DuctShape.round, label: Text('Round')),
-              ButtonSegment(value: DuctShape.rectangular, label: Text('Rectangular')),
+              ButtonSegment(
+                  value: DuctShape.rectangular, label: Text('Rectangular')),
             ],
             selected: {s.defaultShape},
             onSelectionChanged: (v) => set(s.copyWith(defaultShape: v.first)),
@@ -68,26 +78,35 @@ class ProjectSettingsPage extends ConsumerWidget {
           StepperRow(
             label: 'Max aspect ratio',
             value: '${s.maxAspect.toStringAsFixed(1)} : 1',
-            onMinus: () => set(s.copyWith(maxAspect: (s.maxAspect - 0.5).clamp(1.0, 10.0))),
-            onPlus: () => set(s.copyWith(maxAspect: (s.maxAspect + 0.5).clamp(1.0, 10.0))),
+            onMinus: () => set(
+                s.copyWith(maxAspect: (s.maxAspect - 0.5).clamp(1.0, 10.0))),
+            onPlus: () => set(
+                s.copyWith(maxAspect: (s.maxAspect + 0.5).clamp(1.0, 10.0))),
           ),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
             title: const Text('Limit rectangular height'),
             value: s.maxRectHeightM != null,
-            onChanged: (on) => set(on ? s.copyWith(maxRectHeightM: 0.3) : s.copyWith(clearMaxRectHeight: true)),
+            onChanged: (on) => set(on
+                ? s.copyWith(maxRectHeightM: 0.3)
+                : s.copyWith(clearMaxRectHeight: true)),
           ),
           if (s.maxRectHeightM != null)
             StepperRow(
               label: 'Max height',
               value: fmt.dim(s.maxRectHeightM!),
-              onMinus: () => set(s.copyWith(maxRectHeightM: (s.maxRectHeightM! - fmt.dimStep).clamp(0.1, 2.0))),
-              onPlus: () => set(s.copyWith(maxRectHeightM: (s.maxRectHeightM! + fmt.dimStep).clamp(0.1, 2.0))),
+              onMinus: () => set(s.copyWith(
+                  maxRectHeightM:
+                      (s.maxRectHeightM! - fmt.dimStep).clamp(0.1, 2.0))),
+              onPlus: () => set(s.copyWith(
+                  maxRectHeightM:
+                      (s.maxRectHeightM! + fmt.dimStep).clamp(0.1, 2.0))),
             ),
           const Divider(height: 28),
           Text('Where a duct splits', style: t.titleSmall),
           const SizedBox(height: 4),
-          const Text('A fitting is added automatically at every split into two or more children. A section can override this.'),
+          const Text(
+              'A fitting is added automatically at every split into two or more children. A section can override this.'),
           const SizedBox(height: 8),
           SegmentedButton<JunctionType>(
             segments: const [
@@ -96,7 +115,8 @@ class ProjectSettingsPage extends ConsumerWidget {
               ButtonSegment(value: JunctionType.none, label: Text('None')),
             ],
             selected: {s.defaultJunction},
-            onSelectionChanged: (v) => set(s.copyWith(defaultJunction: v.first)),
+            onSelectionChanged: (v) =>
+                set(s.copyWith(defaultJunction: v.first)),
           ),
           const Divider(height: 28),
           SwitchListTile(
@@ -109,14 +129,16 @@ class ProjectSettingsPage extends ConsumerWidget {
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
             title: const Text('Auto reducers'),
-            subtitle: const Text('Add a reducer where an inline section changes size'),
+            subtitle: const Text(
+                'Add a reducer where an inline section changes size'),
             value: s.autoReducers,
             onChanged: (v) => set(s.copyWith(autoReducers: v)),
           ),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
             title: const Text('Flag built-in coefficients'),
-            subtitle: const Text('Warn on sections that use screening values instead of sourced ones'),
+            subtitle: const Text(
+                'Warn on sections that use screening values instead of sourced ones'),
             value: s.requireSourcedFittings,
             onChanged: (v) => set(s.copyWith(requireSourcedFittings: v)),
           ),
@@ -131,21 +153,29 @@ class ProjectSettingsPage extends ConsumerWidget {
           StepperRow(
             label: 'Max velocity',
             value: fmt.velocity(s.maxVelocity),
-            onMinus: () => set(s.copyWith(maxVelocity: (s.maxVelocity - fmt.velocityStep).clamp(2.0, 30.0))),
-            onPlus: () => set(s.copyWith(maxVelocity: (s.maxVelocity + fmt.velocityStep).clamp(2.0, 30.0))),
+            onMinus: () => set(s.copyWith(
+                maxVelocity:
+                    (s.maxVelocity - fmt.velocityStep).clamp(2.0, 30.0))),
+            onPlus: () => set(s.copyWith(
+                maxVelocity:
+                    (s.maxVelocity + fmt.velocityStep).clamp(2.0, 30.0))),
           ),
           StepperRow(
             label: 'NC limit',
             value: s.ncLimit.toStringAsFixed(0),
-            onMinus: () => set(s.copyWith(ncLimit: (s.ncLimit - 5).clamp(15.0, 65.0))),
-            onPlus: () => set(s.copyWith(ncLimit: (s.ncLimit + 5).clamp(15.0, 65.0))),
+            onMinus: () =>
+                set(s.copyWith(ncLimit: (s.ncLimit - 5).clamp(15.0, 65.0))),
+            onPlus: () =>
+                set(s.copyWith(ncLimit: (s.ncLimit + 5).clamp(15.0, 65.0))),
           ),
           const Divider(height: 28),
           Text('Fitting library', style: t.titleSmall),
           const SizedBox(height: 4),
           Wrap(spacing: 8, runSpacing: 4, children: [
             OutlinedButton.icon(
-              onPressed: c.library.isEmpty ? null : () => shareLibraryFile(context, ref),
+              onPressed: c.library.isEmpty
+                  ? null
+                  : () => shareLibraryFile(context, ref),
               icon: const Icon(Icons.ios_share),
               label: const Text('Export'),
             ),
@@ -163,7 +193,8 @@ class ProjectSettingsPage extends ConsumerWidget {
           if (c.library.isEmpty)
             const Padding(
               padding: EdgeInsets.only(top: 8),
-              child: Text('Nothing saved yet. Tick "Save to project library" when adding a Sourced C or Table fitting.'),
+              child: Text(
+                  'Nothing saved yet. Tick "Save to project library" when adding a Sourced C or Table fitting.'),
             ),
           for (var i = 0; i < c.library.length; i++)
             ListTile(
