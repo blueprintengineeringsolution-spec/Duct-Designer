@@ -1,4 +1,4 @@
-import 'package:ductletor_pro/features/schematic/schematic_layout.dart';
+import 'package:ductletor_pro/features/schematic/presentation/schematic_layout.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hvac_engine/hvac_engine.dart';

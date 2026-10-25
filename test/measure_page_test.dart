@@ -1,5 +1,5 @@
-import 'package:ductletor_pro/core/fmt.dart';
-import 'package:ductletor_pro/features/measure/measure_page.dart';
+import 'package:ductletor_pro/core/formatting/fmt.dart';
+import 'package:ductletor_pro/features/measure/presentation/measure_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hvac_engine/hvac_engine.dart';

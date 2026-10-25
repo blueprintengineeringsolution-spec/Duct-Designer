@@ -1,9 +1,9 @@
-import 'package:ductletor_pro/core/sample_project.dart';
-import 'package:ductletor_pro/features/inspector/critical_path_card.dart';
-import 'package:ductletor_pro/features/inspector/nc_gauge.dart';
-import 'package:ductletor_pro/features/network/network_page.dart';
-import 'package:ductletor_pro/state/project_controller.dart';
-import 'package:ductletor_pro/state/tree_ops.dart';
+import 'package:ductletor_pro/features/projects/domain/sample_projects.dart';
+import 'package:ductletor_pro/features/inspector/presentation/critical_path_card.dart';
+import 'package:ductletor_pro/features/inspector/presentation/nc_gauge.dart';
+import 'package:ductletor_pro/features/network/presentation/network_page.dart';
+import 'support/test_project.dart';
+import 'package:ductletor_pro/features/project_editor/domain/tree_ops.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -32,8 +32,8 @@ void main() {
   });
 
   testWidgets('critical path card lists the path and the total', (t) async {
-    final c = ProjectController(root: sampleProject(), name: 'P');
-    await t.pumpWidget(MaterialApp(home: Scaffold(body: SingleChildScrollView(child: CriticalPathCard(c: c)))));
+    final c = TestProject(root: sampleProject(), name: 'P');
+    await t.pumpWidget(c.app(Scaffold(body: SingleChildScrollView(child: CriticalPathCard()))));
     for (final id in c.result.criticalPath) {
       expect(find.text(findNode(c.root, id)!.name), findsOneWidget);
     }
@@ -42,17 +42,17 @@ void main() {
   });
 
   testWidgets('tapping a path row reports its id', (t) async {
-    final c = ProjectController(root: sampleProject(), name: 'P');
+    final c = TestProject(root: sampleProject(), name: 'P');
     String? opened;
-    await t.pumpWidget(MaterialApp(home: Scaffold(body: SingleChildScrollView(child: CriticalPathCard(c: c, onOpen: (id) => opened = id)))));
+    await t.pumpWidget(c.app(Scaffold(body: SingleChildScrollView(child: CriticalPathCard(onOpen: (id) => opened = id)))));
     final last = c.result.criticalPath.last;
     await t.tap(find.text(findNode(c.root, last)!.name));
     expect(opened, last);
   });
 
   testWidgets('undo button on the network page reverses Add Node', (t) async {
-    final c = ProjectController(root: sampleProject(), name: 'P');
-    await t.pumpWidget(MaterialApp(home: NetworkPage(c: c)));
+    final c = TestProject(root: sampleProject(), name: 'P');
+    await t.pumpWidget(c.app(const NetworkPage()));
     final before = allNodes(c.root).length;
     await t.tap(find.text('Add Node'));
     await t.pump();

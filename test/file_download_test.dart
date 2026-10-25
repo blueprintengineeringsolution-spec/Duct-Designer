@@ -1,4 +1,4 @@
-import 'package:ductletor_pro/core/file_download.dart';
+import 'package:ductletor_pro/core/platform/file_download.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

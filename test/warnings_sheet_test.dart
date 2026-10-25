@@ -1,6 +1,6 @@
-import 'package:ductletor_pro/core/sample_project.dart';
-import 'package:ductletor_pro/features/network/network_page.dart';
-import 'package:ductletor_pro/state/project_controller.dart';
+import 'package:ductletor_pro/features/projects/domain/sample_projects.dart';
+import 'package:ductletor_pro/features/network/presentation/network_page.dart';
+import 'support/test_project.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hvac_engine/hvac_engine.dart';
@@ -9,8 +9,8 @@ Finder nameField(String text) => find.byWidgetPredicate((w) => w is TextField &&
 
 void main() {
   testWidgets('the warnings button counts every warning and says so when there are none', (t) async {
-    final c = ProjectController(root: blankProject(), name: 'P');
-    await t.pumpWidget(MaterialApp(home: NetworkPage(c: c)));
+    final c = TestProject(root: blankProject(), name: 'P');
+    await t.pumpWidget(c.app(const NetworkPage()));
     await t.pumpAndSettle();
     expect(find.byTooltip('Warnings (0)'), findsOneWidget);
     await t.tap(find.byTooltip('Warnings (0)'));
@@ -20,9 +20,9 @@ void main() {
   });
 
   testWidgets('a low velocity limit fills the list; the count matches', (t) async {
-    final c = ProjectController(root: blankProject(), name: 'P');
+    final c = TestProject(root: blankProject(), name: 'P');
     c.setSettings(c.settings.copyWith(maxVelocity: 1.5));
-    await t.pumpWidget(MaterialApp(home: NetworkPage(c: c)));
+    await t.pumpWidget(c.app(const NetworkPage()));
     await t.pumpAndSettle();
     final n = collectWarnings(c.units, c.unitResults).length;
     expect(n, greaterThan(0));
@@ -33,13 +33,13 @@ void main() {
   });
 
   testWidgets('tapping a warning in another unit switches to it and opens that section', (t) async {
-    final c = ProjectController(root: blankProject(), name: 'P');
+    final c = TestProject(root: blankProject(), name: 'P');
     c.addUnit();
     final second = c.activeUnitId;
     final trunk2 = c.units.last.children.single.id;
     c.updateNode(trunk2, shape: DuctShape.rectangular, fixedHeightM: 0.1); // aspect warning in unit 2 only
     c.setActiveUnit(c.units.first.id);
-    await t.pumpWidget(MaterialApp(home: NetworkPage(c: c)));
+    await t.pumpWidget(c.app(const NetworkPage()));
     await t.pumpAndSettle();
     await t.tap(find.byTooltip('Warnings (1)'));
     await t.pumpAndSettle();
@@ -52,9 +52,9 @@ void main() {
   });
 
   testWidgets('the list updates when a warning is fixed while it is open', (t) async {
-    final c = ProjectController(root: blankProject(), name: 'P');
+    final c = TestProject(root: blankProject(), name: 'P');
     c.updateNode('trunk', shape: DuctShape.rectangular, fixedHeightM: 0.1);
-    await t.pumpWidget(MaterialApp(home: NetworkPage(c: c)));
+    await t.pumpWidget(c.app(const NetworkPage()));
     await t.pumpAndSettle();
     await t.tap(find.byTooltip('Warnings (1)'));
     await t.pumpAndSettle();

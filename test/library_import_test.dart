@@ -1,24 +1,25 @@
-import 'package:ductletor_pro/core/sample_project.dart';
-import 'package:ductletor_pro/features/settings/project_settings_page.dart';
-import 'package:ductletor_pro/features/share/share_actions.dart';
-import 'package:ductletor_pro/state/project_controller.dart';
+import 'package:ductletor_pro/features/projects/domain/sample_projects.dart';
+import 'package:ductletor_pro/features/settings/presentation/project_settings_page.dart';
+import 'package:ductletor_pro/features/share/presentation/share_actions.dart';
+import 'support/test_project.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hvac_engine/hvac_engine.dart';
 
 const mine = CustomFitting(name: 'Elbow', c: 0.22, code: 'CR3-1', source: 'Mine');
 
-ProjectController make() {
-  final c = ProjectController(root: blankProject());
+TestProject make() {
+  final c = TestProject(root: blankProject());
   c.saveToLibrary(mine);
   return c;
 }
 
-Widget host(ProjectController c, String text) => MaterialApp(
-      home: Scaffold(
-        body: Builder(
-          builder: (context) => Center(
-            child: ElevatedButton(onPressed: () => importLibraryText(context, c, text), child: const Text('go')),
+Widget host(TestProject c, String text) => c.app(
+      Scaffold(
+        body: Consumer(
+          builder: (context, ref, _) => Center(
+            child: ElevatedButton(onPressed: () => importLibraryText(context, ref, text), child: const Text('go')),
           ),
         ),
       ),
@@ -57,7 +58,7 @@ void main() {
     });
 
     test('built-in fittings are skipped and the library cap is respected', () {
-      final c = ProjectController(root: blankProject());
+      final c = TestProject(root: blankProject());
       final many = [for (var i = 0; i < maxLibraryEntries + 5; i++) CustomFitting(name: 'F$i', c: 0.1)];
       final r = c.importLibrary([const Elbow(), ...many], overwrite: false);
       expect(r.added, maxLibraryEntries);
@@ -107,7 +108,7 @@ void main() {
     });
 
     testWidgets('no clashes imports straight away', (t) async {
-      final c = ProjectController(root: blankProject());
+      final c = TestProject(root: blankProject());
       await t.pumpWidget(host(c, theirs));
       await t.tap(find.text('go'));
       await t.pumpAndSettle();
@@ -126,8 +127,8 @@ void main() {
   });
 
   testWidgets('Settings: Export is disabled while the library is empty', (t) async {
-    final c = ProjectController(root: blankProject());
-    await t.pumpWidget(MaterialApp(home: ProjectSettingsPage(c: c)));
+    final c = TestProject(root: blankProject());
+    await t.pumpWidget(c.app(const ProjectSettingsPage()));
     await t.scrollUntilVisible(find.text('Export'), 400, scrollable: find.byType(Scrollable).first);
     Finder export() => find.ancestor(of: find.text('Export'), matching: find.byWidgetPredicate((w) => w is OutlinedButton));
     expect(t.widget<OutlinedButton>(export()).onPressed, isNull);

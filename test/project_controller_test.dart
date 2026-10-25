@@ -1,9 +1,9 @@
-import 'package:ductletor_pro/state/project_controller.dart';
-import 'package:ductletor_pro/state/tree_ops.dart';
+import 'support/test_project.dart';
+import 'package:ductletor_pro/features/project_editor/domain/tree_ops.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hvac_engine/hvac_engine.dart';
 
-ProjectController make() => ProjectController(
+TestProject make() => TestProject(
       root: const DuctNode(id: 'r', name: 'R', lengthM: 5, children: [
         DuctNode(id: 'a', name: 'A', kind: NodeKind.terminal, flow: 0.2, lengthM: 4),
         DuctNode(id: 'b', name: 'B', kind: NodeKind.terminal, flow: 0.3, lengthM: 6),

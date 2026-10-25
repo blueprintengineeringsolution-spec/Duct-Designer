@@ -1,17 +1,17 @@
-import 'package:ductletor_pro/core/sample_project.dart';
-import 'package:ductletor_pro/features/network/network_page.dart';
-import 'package:ductletor_pro/features/schematic/schematic_layout.dart';
-import 'package:ductletor_pro/features/schematic/schematic_painter.dart';
-import 'package:ductletor_pro/state/project_controller.dart';
-import 'package:ductletor_pro/state/tree_ops.dart';
+import 'package:ductletor_pro/features/projects/domain/sample_projects.dart';
+import 'package:ductletor_pro/features/network/presentation/network_page.dart';
+import 'package:ductletor_pro/features/schematic/presentation/schematic_layout.dart';
+import 'package:ductletor_pro/features/schematic/presentation/schematic_painter.dart';
+import 'support/test_project.dart';
+import 'package:ductletor_pro/features/project_editor/domain/tree_ops.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hvac_engine/hvac_engine.dart';
 
-Future<ProjectController> openNetwork(WidgetTester t, {DuctNode? root}) async {
-  final c = ProjectController(root: root ?? sampleProject(), name: 'P');
-  await t.pumpWidget(MaterialApp(home: NetworkPage(c: c)));
+Future<TestProject> openNetwork(WidgetTester t, {DuctNode? root}) async {
+  final c = TestProject(root: root ?? sampleProject(), name: 'P');
+  await t.pumpWidget(c.app(const NetworkPage()));
   await t.pumpAndSettle();
   return c;
 }
@@ -21,10 +21,10 @@ Finder get _canvas => find.byWidgetPredicate((w) => w is CustomPaint && w.painte
 /// Where a point of the diagram ends up on screen (after fit-to-screen scaling).
 Offset onScreen(WidgetTester t, Offset scenePoint) => t.renderObject<RenderBox>(_canvas).localToGlobal(scenePoint);
 
-Offset nodeCentre(WidgetTester t, ProjectController c, String id) =>
+Offset nodeCentre(WidgetTester t, TestProject c, String id) =>
     onScreen(t, layoutNetwork(c.root, collapsed: c.collapsed).byId(id)!.rect.center);
 
-int count(ProjectController c) => allNodes(c.root).length;
+int count(TestProject c) => allNodes(c.root).length;
 
 /// The diagram also listens for double-taps (fit to screen), so a single tap is reported
 /// only after the double-tap window has passed.
@@ -45,7 +45,7 @@ Future<void> doubleTapScreen(WidgetTester t, Offset p) async {
 }
 
 /// Double-tap a section to edit it.
-Future<void> openInspector(WidgetTester t, ProjectController c, String id) => doubleTapScreen(t, nodeCentre(t, c, id));
+Future<void> openInspector(WidgetTester t, TestProject c, String id) => doubleTapScreen(t, nodeCentre(t, c, id));
 
 Future<void> scrollInspectorTo(WidgetTester t, Finder f) => t.scrollUntilVisible(
       f,
@@ -296,7 +296,7 @@ void main() {
     });
 
     test('a second child makes the loss appear without anyone adding a tee', () {
-      final c = ProjectController(root: blankProject(), name: 'P');
+      final c = TestProject(root: blankProject(), name: 'P');
       c.addChild('trunk');
       expect(c.nodeResult(c.root.children.single.children.single.id)!.fittingBreakdown, isEmpty);
       c.addChild('trunk');

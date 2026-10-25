@@ -58,3 +58,10 @@ Each unit chip has a dot for its worst section (green OK, amber caution, red ove
 
 ## Warnings
 The warning triangle in the top bar shows how many warnings the whole project has. It opens one list (over-limit sections first, grouped by unit); tap a warning to switch to that unit and open the section for editing.
+
+## Architecture
+Feature-first clean architecture with Riverpod 2.x (`flutter_riverpod`, no code generation).
+- `lib/app/` app widget, theme, startup provider, tab shell. `lib/core/` formatting, platform helpers, shared widgets, tab provider.
+- `lib/features/<feature>/{domain,data,presentation}`: `projects` (repository, use cases, auto-saver, stores, library notifier), `project_editor` (immutable `ProjectEditorState` with every edit rule and undo history, `ProjectEditorNotifier`), `network`, `inspector`, `schematic`, `fittings`, `settings`, `measure`, `report`, `share`.
+- Domain files are pure Dart. Screens are `ConsumerWidget`s that read `currentProjectProvider` and call `projectEditorProvider.notifier`.
+- Tests: `test/support/test_project.dart` gives the old controller-style calls on top of the real providers.

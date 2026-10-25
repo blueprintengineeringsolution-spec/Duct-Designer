@@ -1,7 +1,7 @@
-import 'package:ductletor_pro/core/sample_project.dart';
-import 'package:ductletor_pro/features/network/network_page.dart';
-import 'package:ductletor_pro/features/report/report_page.dart';
-import 'package:ductletor_pro/state/project_controller.dart';
+import 'package:ductletor_pro/features/projects/domain/sample_projects.dart';
+import 'package:ductletor_pro/features/network/presentation/network_page.dart';
+import 'package:ductletor_pro/features/report/presentation/report_page.dart';
+import 'support/test_project.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hvac_engine/hvac_engine.dart';
@@ -10,8 +10,8 @@ ChoiceChip chip(WidgetTester t, String unitId) => t.widget<ChoiceChip>(find.byKe
 
 void main() {
   testWidgets('unit chips say how the unit is doing', (t) async {
-    final c = ProjectController(root: blankProject(), name: 'P');
-    await t.pumpWidget(MaterialApp(home: NetworkPage(c: c)));
+    final c = TestProject(root: blankProject(), name: 'P');
+    await t.pumpWidget(c.app(const NetworkPage()));
     await t.pumpAndSettle();
     final id = c.activeUnitId;
     expect(chip(t, id).tooltip, 'AHU-01: OK');
@@ -23,24 +23,24 @@ void main() {
   });
 
   testWidgets('each unit gets its own status', (t) async {
-    final c = ProjectController(root: blankProject(), name: 'P');
+    final c = TestProject(root: blankProject(), name: 'P');
     c.addUnit();
     final second = c.activeUnitId;
     // a rectangular, very flat duct on the first unit only
     final first = c.units.first;
     c.updateNode(first.children.single.id, shape: DuctShape.rectangular, fixedHeightM: 0.1);
-    await t.pumpWidget(MaterialApp(home: NetworkPage(c: c)));
+    await t.pumpWidget(c.app(const NetworkPage()));
     await t.pumpAndSettle();
     expect(chip(t, first.id).tooltip, contains('Caution'));
     expect(chip(t, second).tooltip, 'AHU-02: OK');
   });
 
   testWidgets('the report lists every unit with its status; tapping one opens it', (t) async {
-    final c = ProjectController(root: sampleProject(), name: 'P');
+    final c = TestProject(root: sampleProject(), name: 'P');
     c.addUnit();
     final second = c.activeUnitId;
     final first = c.units.first.id;
-    await t.pumpWidget(MaterialApp(home: ReportPage(c: c)));
+    await t.pumpWidget(c.app(const ReportPage()));
     await t.pumpAndSettle();
     expect(find.text('Units'), findsOneWidget);
     expect(find.byKey(ValueKey('overview-$first')), findsOneWidget);
@@ -52,8 +52,8 @@ void main() {
   });
 
   testWidgets('a single-unit report has no units list', (t) async {
-    final c = ProjectController(root: sampleProject(), name: 'P');
-    await t.pumpWidget(MaterialApp(home: ReportPage(c: c)));
+    final c = TestProject(root: sampleProject(), name: 'P');
+    await t.pumpWidget(c.app(const ReportPage()));
     await t.pumpAndSettle();
     expect(find.text('Units'), findsNothing);
   });

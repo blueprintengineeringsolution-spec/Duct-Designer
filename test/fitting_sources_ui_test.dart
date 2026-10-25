@@ -1,18 +1,16 @@
-import 'package:ductletor_pro/core/sample_project.dart';
-import 'package:ductletor_pro/features/fittings/add_fitting_sheet.dart';
-import 'package:ductletor_pro/state/project_controller.dart';
-import 'package:ductletor_pro/state/tree_ops.dart';
+import 'package:ductletor_pro/features/projects/domain/sample_projects.dart';
+import 'package:ductletor_pro/features/fittings/presentation/add_fitting_sheet.dart';
+import 'support/test_project.dart';
+import 'package:ductletor_pro/features/project_editor/domain/tree_ops.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hvac_engine/hvac_engine.dart';
 
-Widget host(ProjectController c) => MaterialApp(
-      home: Scaffold(body: AddFittingSheet(c: c, nodeId: 'trunk')),
-    );
+Widget host(TestProject c) => c.app(const Scaffold(body: AddFittingSheet(nodeId: 'trunk')));
 
 void main() {
   testWidgets('Sourced C stores the code and source on the fitting', (t) async {
-    final c = ProjectController(root: blankProject());
+    final c = TestProject(root: blankProject());
     await t.pumpWidget(host(c));
     await t.tap(find.text('Sourced C'));
     await t.pumpAndSettle();
@@ -30,7 +28,7 @@ void main() {
   });
 
   testWidgets('Table: a bad row shows the line number and blocks Add', (t) async {
-    final c = ProjectController(root: blankProject());
+    final c = TestProject(root: blankProject());
     await t.pumpWidget(host(c));
     await t.tap(find.text('Table'));
     await t.pumpAndSettle();
@@ -43,7 +41,7 @@ void main() {
   });
 
   testWidgets('Table: valid rows add a table fitting', (t) async {
-    final c = ProjectController(root: blankProject());
+    final c = TestProject(root: blankProject());
     await t.pumpWidget(host(c));
     await t.tap(find.text('Table'));
     await t.pumpAndSettle();
@@ -56,7 +54,7 @@ void main() {
   });
 
   test('settings flag shows up as a warning on built-in fittings through the controller', () {
-    final c = ProjectController(root: sampleProject());
+    final c = TestProject(root: sampleProject());
     expect(c.result.nodes['trunk']!.warnings.any((w) => w.contains('screening')), isFalse);
     c.setSettings(c.settings.copyWith(requireSourcedFittings: true));
     expect(c.result.nodes['trunk']!.warnings.any((w) => w.contains('screening')), isTrue);

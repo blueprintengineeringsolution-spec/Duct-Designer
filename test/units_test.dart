@@ -1,15 +1,14 @@
-import 'package:ductletor_pro/core/sample_project.dart';
-import 'package:ductletor_pro/data/project_store.dart';
-import 'package:ductletor_pro/state/project_controller.dart';
-import 'package:ductletor_pro/state/project_library.dart';
-import 'package:ductletor_pro/state/tree_ops.dart';
+import 'package:ductletor_pro/features/projects/domain/sample_projects.dart';
+import 'package:ductletor_pro/features/projects/data/memory_project_data_source.dart';
+import 'support/test_project.dart';
+import 'package:ductletor_pro/features/project_editor/domain/tree_ops.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hvac_engine/hvac_engine.dart';
 
-ProjectController make() => ProjectController(root: blankProject(), name: 'P');
+TestProject make() => TestProject(root: blankProject(), name: 'P');
 
-Set<String> allIds(ProjectController c) => {for (final u in c.units) for (final n in allNodes(u)) n.id};
-int totalNodes(ProjectController c) => c.units.fold(0, (a, u) => a + allNodes(u).length);
+Set<String> allIds(TestProject c) => {for (final u in c.units) for (final n in allNodes(u)) n.id};
+int totalNodes(TestProject c) => c.units.fold(0, (a, u) => a + allNodes(u).length);
 
 void main() {
   test('a project starts with one unit', () {
@@ -77,7 +76,7 @@ void main() {
   });
 
   test('duplicate unit copies the network under new ids', () {
-    final c = ProjectController(root: sampleProject(), name: 'P');
+    final c = TestProject(root: sampleProject(), name: 'P');
     final fan = c.result.requiredFanPa;
     final copyId = c.duplicateUnit(c.activeUnitId)!;
     expect(c.units.length, 2);
@@ -138,7 +137,7 @@ void main() {
     final c = make();
     c.addUnit();
     c.updateNode(c.root.children.single.id, flow: 0.9);
-    final back = ProjectController.fromDoc(c.toDoc());
+    final back = TestProject.fromDoc(c.toDoc());
     expect(back.units.length, 2);
     expect(back.unitResults.length, 2);
     expect(back.units.last.children.single.flow, 0.9);
@@ -164,8 +163,8 @@ void main() {
   });
 
   test('importing or duplicating a project keeps all of its units', () async {
-    final store = MemoryProjectStore();
-    final lib = ProjectLibrary(store, saveDebounce: const Duration(milliseconds: 10));
+    final store = MemoryProjectDataSource();
+    final lib = TestLibrary(source: store, debounce: const Duration(milliseconds: 10));
     await lib.init();
     lib.active!.addUnit();
     final doc = (await lib.docFor(lib.active!.id))!;

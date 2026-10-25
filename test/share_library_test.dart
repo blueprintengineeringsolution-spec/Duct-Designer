@@ -1,13 +1,13 @@
-import 'package:ductletor_pro/core/sample_project.dart';
-import 'package:ductletor_pro/data/project_store.dart';
-import 'package:ductletor_pro/state/project_library.dart';
-import 'package:ductletor_pro/state/tree_ops.dart';
+import 'package:ductletor_pro/features/projects/domain/sample_projects.dart';
+import 'package:ductletor_pro/features/projects/data/memory_project_data_source.dart';
+import 'support/test_project.dart';
+import 'package:ductletor_pro/features/project_editor/domain/tree_ops.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hvac_engine/hvac_engine.dart';
 
 void main() {
   test('docFor returns the latest edits even before autosave fires', () async {
-    final lib = ProjectLibrary(MemoryProjectStore(), saveDebounce: const Duration(seconds: 5));
+    final lib = TestLibrary(debounce: const Duration(seconds: 5));
     await lib.init();
     final c = lib.active!;
     c.updateNode('trunk', lengthM: 42);
@@ -17,7 +17,7 @@ void main() {
   });
 
   test('share then import makes a separate, equal copy and opens it', () async {
-    final lib = ProjectLibrary(MemoryProjectStore(), saveDebounce: const Duration(milliseconds: 10));
+    final lib = TestLibrary(debounce: const Duration(milliseconds: 10));
     await lib.init();
     final src = lib.active!;
     src.addFitting('trunk', const Elbow(count: 2));
@@ -32,7 +32,7 @@ void main() {
   });
 
   test('importing twice does not stack the suffix', () async {
-    final lib = ProjectLibrary(MemoryProjectStore(), saveDebounce: const Duration(milliseconds: 10));
+    final lib = TestLibrary(debounce: const Duration(milliseconds: 10));
     await lib.init();
     final doc = ProjectDoc(
       id: 'x', name: 'Plant (imported)', imperial: false, settings: const EngineSettings(),

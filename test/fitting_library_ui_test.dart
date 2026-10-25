@@ -1,21 +1,20 @@
-import 'package:ductletor_pro/core/sample_project.dart';
-import 'package:ductletor_pro/data/project_store.dart';
-import 'package:ductletor_pro/features/fittings/add_fitting_sheet.dart';
-import 'package:ductletor_pro/state/project_controller.dart';
-import 'package:ductletor_pro/state/project_library.dart';
-import 'package:ductletor_pro/state/tree_ops.dart';
+import 'package:ductletor_pro/features/projects/domain/sample_projects.dart';
+import 'package:ductletor_pro/features/projects/data/memory_project_data_source.dart';
+import 'package:ductletor_pro/features/fittings/presentation/add_fitting_sheet.dart';
+import 'support/test_project.dart';
+import 'package:ductletor_pro/features/project_editor/domain/tree_ops.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hvac_engine/hvac_engine.dart';
 
 const elbow = CustomFitting(name: 'Elbow', c: 0.22, code: 'CR3-1', source: 'My source');
 
-Widget host(ProjectController c) => MaterialApp(home: Scaffold(body: AddFittingSheet(c: c, nodeId: 'trunk')));
+Widget host(TestProject c) => c.app(const Scaffold(body: AddFittingSheet(nodeId: 'trunk')));
 
 void main() {
   group('controller', () {
     test('save replaces an entry with the same name and code, and resets the count to 1', () {
-      final c = ProjectController(root: blankProject());
+      final c = TestProject(root: blankProject());
       c.saveToLibrary(elbow.withCount(5));
       expect((c.library.single as CustomFitting).count, 1);
       c.saveToLibrary(const CustomFitting(name: 'Elbow', c: 0.30, code: 'CR3-1', source: 'Newer'));
@@ -26,14 +25,14 @@ void main() {
     });
 
     test('only sourced fittings can be saved', () {
-      final c = ProjectController(root: blankProject());
+      final c = TestProject(root: blankProject());
       c.saveToLibrary(const Elbow());
       c.saveToLibrary(const Reducer());
       expect(c.library, isEmpty);
     });
 
     test('adding from the library copies the fitting; later library edits do not change it', () {
-      final c = ProjectController(root: blankProject());
+      final c = TestProject(root: blankProject());
       c.saveToLibrary(elbow);
       c.addFromLibrary('trunk', 0, count: 3);
       final f = findNode(c.root, 'trunk')!.fittings.single as CustomFitting;
@@ -43,7 +42,7 @@ void main() {
     });
 
     test('remove, bad indexes and undo/redo', () {
-      final c = ProjectController(root: blankProject());
+      final c = TestProject(root: blankProject());
       c.saveToLibrary(elbow);
       c.addFromLibrary('trunk', 9);
       c.removeFromLibrary(9);
@@ -57,18 +56,18 @@ void main() {
     });
 
     test('library is saved with the project and counts as a saveable change', () {
-      final c = ProjectController(root: blankProject());
+      final c = TestProject(root: blankProject());
       final r = c.revision;
       c.saveToLibrary(elbow);
       expect(c.revision, greaterThan(r));
-      expect(ProjectController.fromDoc(c.toDoc()).library.length, 1);
+      expect(TestProject.fromDoc(c.toDoc()).library.length, 1);
     });
   });
 
   group('project library', () {
     test('import and duplicate carry the fitting library', () async {
-      final store = MemoryProjectStore();
-      final lib = ProjectLibrary(store, saveDebounce: const Duration(milliseconds: 10));
+      final store = MemoryProjectDataSource();
+      final lib = TestLibrary(source: store, debounce: const Duration(milliseconds: 10));
       await lib.init();
       final src = lib.active!;
       src.saveToLibrary(elbow);
@@ -84,7 +83,7 @@ void main() {
 
   group('add fitting sheet', () {
     testWidgets('Library tab adds the chosen fitting with the chosen quantity', (t) async {
-      final c = ProjectController(root: blankProject());
+      final c = TestProject(root: blankProject());
       c.saveToLibrary(elbow);
       await t.pumpWidget(host(c));
       await t.tap(find.text('Library'));
@@ -101,7 +100,7 @@ void main() {
     });
 
     testWidgets('nothing is added until a library entry is chosen', (t) async {
-      final c = ProjectController(root: blankProject());
+      final c = TestProject(root: blankProject());
       c.saveToLibrary(elbow);
       await t.pumpWidget(host(c));
       await t.tap(find.text('Library'));
@@ -111,7 +110,7 @@ void main() {
     });
 
     testWidgets('Save to project library keeps a Sourced C fitting for reuse', (t) async {
-      final c = ProjectController(root: blankProject());
+      final c = TestProject(root: blankProject());
       await t.pumpWidget(host(c));
       await t.tap(find.text('Sourced C'));
       await t.pumpAndSettle();
@@ -127,7 +126,7 @@ void main() {
     });
 
     testWidgets('empty library explains how to fill it', (t) async {
-      final c = ProjectController(root: blankProject());
+      final c = TestProject(root: blankProject());
       await t.pumpWidget(host(c));
       await t.tap(find.text('Library'));
       await t.pumpAndSettle();

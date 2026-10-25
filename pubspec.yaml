@@ -9,6 +9,7 @@ dependencies:
     sdk: flutter
   hvac_engine:
     path: packages/hvac_engine
+  flutter_riverpod: ^2.5.1
   path_provider: ^2.1.0
   shared_preferences: ^2.2.0
   web: ^1.0.0

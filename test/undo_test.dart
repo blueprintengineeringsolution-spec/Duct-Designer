@@ -1,11 +1,11 @@
-import 'package:ductletor_pro/core/sample_project.dart';
-import 'package:ductletor_pro/state/project_controller.dart';
-import 'package:ductletor_pro/state/tree_ops.dart';
+import 'package:ductletor_pro/features/projects/domain/sample_projects.dart';
+import 'support/test_project.dart';
+import 'package:ductletor_pro/features/project_editor/domain/tree_ops.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hvac_engine/hvac_engine.dart';
 
-ProjectController make() => ProjectController(root: blankProject(), name: 'P');
-double len(ProjectController c) => findNode(c.root, 'trunk')!.lengthM;
+TestProject make() => TestProject(root: blankProject(), name: 'P');
+double len(TestProject c) => findNode(c.root, 'trunk')!.lengthM;
 
 void main() {
   test('undo and redo restore a field edit', () {
